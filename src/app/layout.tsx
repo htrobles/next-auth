@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Providers from './providers';
-import { getSession } from '@/auth';
-
-const inter = Inter({ subsets: ['latin'] });
+import SessionProvider from './SessionProvider';
+import { getSession } from 'next-auth/react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -16,12 +14,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-
   return (
     <html lang='en'>
-      <body className={inter.className}>
-        <Providers session={session}>{children}</Providers>
+      <body className='min-h-screen'>
+        {/* <SessionProvider session={session}>{children}</SessionProvider> */}
+        {children}
       </body>
     </html>
   );

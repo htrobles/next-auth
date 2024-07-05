@@ -1,54 +1,39 @@
-import NextAuth, { AuthOptions, getServerSession } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import User from '@/lib/defs/User';
+import NextAuth from 'next-auth';
+import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 
-const authOptions: AuthOptions = {
-  // Configure one or more authentication providers
+// const GOOGLE_ID = process.env.AUTH_GOOGLE_ID;
+// const GOOGLE_SECRET = process.env.AUTH_GOOGLE_SECRET;
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID as string,
-      clientSecret: process.env.GOOGLE_SECRT as string,
-    }),
-    CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
-      name: 'Credentials',
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
+    Google,
+    Credentials({
       credentials: {
-        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
-        email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'jsmith@email.com',
-        },
-        password: { label: 'Password', type: 'password' },
+        email: { label: 'Email', type: 'email', required: true },
+        password: { label: 'Password', type: 'password', required: true },
       },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: '1', name: 'J Smith', email: 'jsmith@example.com' };
-
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
+      async authorize(payload) {
+        console.log('XXX');
+        console.log(payload);
+        // const response = await fetch(request);
+        // if (!response.ok) return null;
+        // return (await response.json()) ?? null;
+        return { email: 'test' };
       },
     }),
-    // ...add more providers here
   ],
-};
+  callbacks: {
+    async signIn({ account, profile }) {
+      // console.log('XXX AUTH CALLBACK START XXXX');
+      // console.log(account);
+      // console.log(profile);
+      // console.log('XXX AUTH CALLBACK END XXXX');
+      if (account?.provider === 'google') {
+        return !!profile?.email_verified;
+      }
 
-/**
- * Helper function to get the session on the server without having to import the authOptions object every single time
- * @returns The session object or null
- */
-const getSession = () => getServerSession(authOptions);
-
-export { authOptions, getSession };
+      return true;
+    },
+  },
+});
