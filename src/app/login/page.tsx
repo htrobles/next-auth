@@ -1,6 +1,6 @@
 import { signIn } from '@/auth';
 import React from 'react';
-import { socialLogin } from '../actions';
+import { socialLogin } from '../../actions';
 
 export default function Login() {
   return (
